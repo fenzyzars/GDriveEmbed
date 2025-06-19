@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konverter Link Google Drive Embed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 20px;
+            box-sizing: border-box;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #resultContainer {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        #resultCode {
+            background-color: #e9e9e9;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Ensures long words break */
+            font-size: 14px;
+            line-height: 1.5;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        #copyButton {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+        #copyButton:hover {
+            background-color: #218838;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .iframe-preview {
+            width: 100%;
+            height: 0;
+            /* Padding-bottom 100% for 1:1 aspect ratio */
+            padding-bottom: 100%; 
+            position: relative;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .iframe-preview iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Konverter Link Google Drive Embed</h1>
+        <p>Tempel link Google Drive Anda di bawah ini untuk mendapatkan kode embed iframe.</p>
+
+        <label for="googleDriveLink">Link Google Drive:</label>
+        <input type="text" id="googleDriveLink" placeholder="Contoh: https://drive.google.com/file/d/1kfbaUd8FPVDdou_-Vfw7hwgNH7K3PrOf/view?usp=drivesdk">
+        
+        <button onclick="convertLink()">Konversi & Buat Embed</button>
+
+        <div id="resultContainer" style="display: none;">
+            <p id="errorMessage" class="error-message" style="display: none;"></p>
+            <label for="resultCode">Kode HTML Embed:</label>
+            <pre id="resultCode"></pre>
+            <button id="copyButton" onclick="copyToClipboard()">Salin Kode Embed</button>
+
+            <div class="iframe-preview" id="iframePreviewContainer" style="display: none;">
+                <iframe id="previewIframe" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function convertLink() {
+            const inputLink = document.getElementById('googleDriveLink').value;
+            const resultContainer = document.getElementById('resultContainer');
+            const resultCode = document.getElementById('resultCode');
+            const errorMessage = document.getElementById('errorMessage');
+            const iframePreviewContainer = document.getElementById('iframePreviewContainer');
+            const previewIframe = document.getElementById('previewIframe');
+
+            errorMessage.style.display = 'none'; // Sembunyikan pesan error sebelumnya
+            resultCode.textContent = ''; // Kosongkan hasil sebelumnya
+            iframePreviewContainer.style.display = 'none'; // Sembunyikan preview iframe sebelumnya
+            previewIframe.src = ''; // Bersihkan src iframe
+
+            // Periksa apakah link valid dan mengandung pola Google Drive yang diinginkan
+            const driveRegex = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)\/(view\?usp=drivesdk|preview)?/i;
+            const match = inputLink.match(driveRegex);
+
+            if (match) {
+                const fileId = match[1]; // Mengambil ID file dari link
+                const newLink = `https://drive.google.com/file/d/${fileId}/preview`;
+
+                // Kode embed yang disesuaikan dengan padding-bottom: 100% dan tanpa loading="lazy"
+                const embedCode = `<div style="left: 0; width: 100%; height: 0; position: relative; padding-bottom: 100%;"><iframe src="${newLink}" style="top: 0; left: 0; width: 100%; height: 100%; position: absolute; border: 0;" allowfullscreen></iframe></div>`;
+                
+                resultCode.textContent = embedCode;
+                resultContainer.style.display = 'block';
+
+                // Tampilkan preview iframe
+                previewIframe.src = newLink;
+                iframePreviewContainer.style.display = 'block';
+
+            } else {
+                errorMessage.textContent = 'Link Google Drive tidak valid atau tidak sesuai format yang diharapkan.';
+                errorMessage.style.display = 'block';
+                resultContainer.style.display = 'block'; // Tetap tampilkan container untuk pesan error
+            }
+        }
+
+        function copyToClipboard() {
+            const resultCode = document.getElementById('resultCode');
+            const textToCopy = resultCode.textContent;
+
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    alert('Kode embed berhasil disalin ke clipboard!');
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin teks: ', err);
+                    alert('Gagal menyalin kode. Silakan salin secara manual.');
+                });
+        }
+    </script>
+</body>
+</html>
